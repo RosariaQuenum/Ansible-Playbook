@@ -1,0 +1,67 @@
+# PLAY 1
+- name: setting up apache on linux servers  
+  hosts: linux
+
+  tasks:
+    - name: Upgrade all packages  # yum update -y
+      ansible.builtin.yum:
+        name: '*'
+        state: latest
+    - name: Install the latest version of Apache  # yum install httpd -y
+      ansible.builtin.yum:
+        name: httpd
+        state: latest
+    - name: Start service httpd, if not started  # systemctl start httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+    - name: Enable service httpd at server launch # systemctl enable httpd
+      ansible.builtin.service:
+        name: httpd
+        enabled: yes
+    - name: Copy index.html file from the controller to the nodes at /var/www/html/
+      ansible.builtin.copy:
+        src: /root/web/index.html
+        dest: /var/www/html/
+
+# PLAY2
+- name: setting up apache on ubuntu servers   
+  hosts: ubuntu
+
+  tasks:
+    - name: Update all packages to their latest version # sudo apt update
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+    - name: Install apache httpd # sudo apt install apache2
+      ansible.builtin.apt:
+        name: apache2
+        state: present
+    - name: Start service httpd # sudo systemctl start apache2
+      ansible.builtin.service:
+        name: apache2
+        state: started
+    - name: Enable service httpd, and not touch the state # sudo systemctl enable apache2
+      ansible.builtin.service:
+        name: apache2
+        enabled: yes
+    - name: Copy index.html file from the controller to the nodes at /var/www/html/
+      ansible.builtin.copy:
+        src: /root/web/index.html
+        dest: /var/www/html/
+
+#PLAY3
+- name: installing git on all servers
+  hosts: uduntu
+  become: yes
+
+  tasks:
+    - name: update
+      apt:
+        name: '*'
+        state: present
+    - name: install git
+      apt:
+        name: git
+        state: present
+        update_cache: yes
